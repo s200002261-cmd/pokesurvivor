@@ -16,7 +16,56 @@ const pairs={
 'Fire':'火','Water':'水','Grass':'草','Electric':'電','Ice':'冰','Fighting':'格鬥','Poison':'毒','Ground':'地面','Flying':'飛行','Psychic':'超能力','Bug':'蟲','Rock':'岩石','Ghost':'幽靈','Dragon':'龍','Dark':'惡','Steel':'鋼','Fairy':'妖精','Normal':'一般'
 };
 const map=new Map(Object.entries(pairs));
-function tr(value){if(typeof value!=='string'||!value.trim())return value;const t=value.trim();if(map.has(t))return value.replace(t,map.get(t));let m=t.match(/^You have\s+(\d+)\s+of\s+(\d+)$/i);if(m)return `已擁有 ${m[1]}／${m[2]}`;m=t.match(/^(\d+)\s+levels?$/i);if(m)return `${m[1]} 級`;m=t.match(/^Choose\s*\((\d+\/\d+)\)$/i);if(m)return `選擇（${m[1]}）`;return value;}
+
+// Names are supplied by the existing official-name loader in js/zh-tw.js.
+// Do not mutate G.DEX_BY or saved Pokemon IDs; only change displayed labels.
+function translatePokemonName(label){
+ try {
+  const loc=window.PS_ZH_TW;
+  if(!loc||!loc.pokemon||typeof G==='undefined'||!G.DEX_BY)return label;
+  const m=/^(.+?)(?=\s*\(|\s*[·・]|$)/.exec(label);
+  if(!m)return label;
+  const source=m[1].trim();
+  for(const [id,p] of Object.entries(G.DEX_BY)){
+   if(!p||!p.name||p.name.toLowerCase()!==source.toLowerCase())continue;
+   const translated=loc.pokemon[Number(id)];
+   if(translated)return label.replace(source,translated);
+  }
+ }catch(e){}
+ return label;
+}
+
+const upgrades={
+'Fortune':'幸運','Repertoire':'招式欄位','Critical Hit':'會心一擊','Card reroll':'卡牌重抽',
+'+8% PokéDollars':'寶可夢幣 +8%','Start with 2 moves':'開局可使用 2 個招式',
+'+3% critical chance (x1.5 damage)':'會心一擊率 +3%（傷害 ×1.5）',
+'+1 level-up card reroll per run':'每次冒險額外重抽 1 次升級卡牌',
+'+12% pickup':'拾取範圍 +12%','+5% XP':'經驗值 +5%',
+'Ban 1 move: it never shows up in your cards':'封鎖 1 個招式，使其不會出現在升級卡牌中',
+'Choose which move always goes in each slot (keys 1-4 or the icons at the bottom), for muscle memory. If you do not have that many moves yet, it goes to the closest slot.':'設定每個欄位固定使用的招式（按鍵 1～4 或下方圖示），方便熟悉操作。若招式數量不足，會自動安排到最接近的欄位。',
+'Swords Dance':'劍舞','Charizard':'噴火龍','Gengar':'耿鬼','Mewtwo':'超夢','Giratina':'騎拉帝納','Koraidon':'故勒頓','Fezandipiti':'吉雉雞','Rayquaza':'烈空坐','Bulbasaur':'妙蛙種子','Ivysaur':'妙蛙草',
+'partner':'夥伴','niveles':'級',
+'Ban 1 move: it never shows up in your cards':'封鎖 1 個招式，讓它不再出現在升級卡牌中',
+'Each Pokémon has its own upgrades: they only count when you play with it.':'每隻寶可夢都有獨立的強化效果，只有使用該寶可夢時才會生效。',
+'Choose which move always goes in each slot (keys 1-4 or the icons at the bottom), for muscle memory. If you do not have that many moves yet, it goes to the closest slot.':'設定每個欄位固定使用的招式（按鍵 1～4 或下方圖示），若招式不足則自動安排至最接近的欄位。',
+};
+for(const [a,b] of Object.entries(upgrades))map.set(a,b);
+function tr(value){
+ if(typeof value!=='string'||!value.trim())return value;
+ const t=value.trim();if(map.has(t))return value.replace(t,map.get(t));
+ let m=t.match(/^You have\s+(\d+)\s+of\s+(\d+)(.*)$/i);if(m)return value.replace(t,`已擁有 ${m[1]}／${m[2]}${m[3].replace(/\bshiny\b/gi,'異色')}`);
+ m=t.match(/^(\d+)\s+(?:levels?|niveles)$/i);if(m)return value.replace(t,`${m[1]} 級`);
+ m=t.match(/^Choose\s*\((\d+\/\d+)\)$/i);if(m)return value.replace(t,`選擇（${m[1]}）`);
+ // Compound names, stat lines and native <select> options are single text nodes.
+ let out=translatePokemonName(t);
+ const sorted=[...map.entries()].filter(([a])=>a.length>=3).sort((a,b)=>b[0].length-a[0].length);
+ for(const [a,b] of sorted){
+   const esc=a.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+   try{out=out.replace(new RegExp('(^|[^\\p{L}])('+esc+')(?=$|[^\\p{L}])','giu'),(_,pre)=>pre+b);}catch(e){}
+ }
+ out=out.replace(/\b(\d+)\s+niveles\b/gi,'$1 級').replace(/\bpartner\b/gi,'夥伴');
+ return out===t?value:value.replace(t,out);
+}
 let busy=false,queued=false;
 function run(){queued=false;if(busy||!document.body)return;busy=true;try{const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walk.nextNode()){if(n.parentElement&&/^(SCRIPT|STYLE|TEXTAREA|PRE|CODE)$/.test(n.parentElement.tagName))continue;const next=tr(n.nodeValue);if(next!==n.nodeValue)n.nodeValue=next;}for(const el of document.querySelectorAll('[placeholder],[title],[aria-label]'))for(const a of ['placeholder','title','aria-label']){const v=el.getAttribute(a);if(v!==null){const t=tr(v);if(t!==v)el.setAttribute(a,t);}}}finally{busy=false;}}
 function schedule(){if(!queued){queued=true;requestAnimationFrame(run);}}
