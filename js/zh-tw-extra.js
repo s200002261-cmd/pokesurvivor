@@ -1,7 +1,7 @@
 /* PokéSurvivor zh-TW: English / Spanish dynamic UI supplement. No gameplay changes. */
 (()=>{'use strict';
 const pairs={
-'Vitality':'生命力','Strength':'力量','Stride':'步伐','Reflexes':'反射神經','Guard':'防護','Regeneration':'自我再生','Magnet':'磁力','Wisdom':'智慧','Luck':'幸運','Move slot':'招式欄位','Move slots':'招式欄位','Critical hit':'會心一擊','Reroll':'卡牌重抽','Ban':'招式封鎖','Max.':'已滿級','MAX':'已滿級','Max':'已滿級','Free':'不指定','Move shortcuts':'招式快捷欄','Choose':'選擇','Select':'選擇','Back':'返回','Upgrades':'強化','Upgrade':'強化','Pokémon':'寶可夢','Companion':'夥伴','Levels':'等級','Level':'等級',
+'Vitality':'生命力','Strength':'力量','Stride':'步伐','Reflexes':'反射神經','Guard':'防護','Regeneration':'自我再生','Magnet':'磁力','Wisdom':'智慧','Luck':'幸運','Move slot':'招式欄位','Move slots':'招式欄位','Critical hit':'會心一擊','Reroll':'卡牌重抽','Ban':'招式封鎖','Max.':'已滿級','MAX':'已滿級','Free':'不指定','Move shortcuts':'招式快捷欄','Choose':'選擇','Select':'選擇','Back':'返回','Upgrades':'強化','Upgrade':'強化','Pokémon':'寶可夢','Companion':'夥伴','Levels':'等級','Level':'等級',
 'Vitalidad':'生命力','Fuerza':'力量','Paso':'步伐','Reflejos':'反射神經','Defensa':'防護','Regeneración':'自我再生','Imán':'磁力','Sabiduría':'智慧','Suerte':'幸運','Veto':'招式封鎖','Máx.':'已滿級','Libre':'不指定','Atajos de movimientos':'招式快捷欄',
 '+8 HP':'生命值 +8','+8 health':'生命值 +8','+4% damage':'傷害 +4%','+3% speed':'移動速度 +3%','-3% cooldown':'冷卻時間 -3%','+2% defense':'防禦 +2%','+0.2 HP/s':'每秒回復 0.2 生命值','+12% pickup range':'拾取範圍 +12%','+5% experience':'經驗值 +5%','+8% coins':'寶可夢幣 +8%',
 '+8 vida':'生命值 +8','+4% daño':'傷害 +4%','+3% velocidad':'移動速度 +3%','-3% recarga':'冷卻時間 -3%','+2% defensa':'防禦 +2%','+0.2 vida/s':'每秒回復 0.2 生命值','+12% recogida':'拾取範圍 +12%','+5% experiencia':'經驗值 +5%','+8% Pokémonedas':'寶可夢幣 +8%',
@@ -50,6 +50,49 @@ const upgrades={
 'Choose which move always goes in each slot (keys 1-4 or the icons at the bottom), for muscle memory. If you do not have that many moves yet, it goes to the closest slot.':'設定每個欄位固定使用的招式（按鍵 1～4 或下方圖示），若招式不足則自動安排至最接近的欄位。',
 };
 for(const [a,b] of Object.entries(upgrades))map.set(a,b);
+
+// Official Traditional Chinese move labels used by the native iOS selector.
+const officialMoves={
+'Agility':'高速移動','Quick Attack':'電光一閃','Confusion':'念力',
+'Harden':'變硬','Body Slam':'泰山壓頂','Tackle':'撞擊',
+'Psycho Cut':'精神利刃','Swords Dance':'劍舞',
+'Growl':'叫聲','Leer':'瞪眼','Scratch':'抓','Pound':'拍擊',
+'Ember':'火花','Water Gun':'水槍','Vine Whip':'藤鞭',
+'Thunderbolt':'十萬伏特','Thunder Shock':'電擊','Flamethrower':'噴射火焰',
+'Ice Beam':'冰凍光束','Psychic':'精神強念','Shadow Ball':'暗影球',
+'Hyper Beam':'破壞光線','Protect':'守住','Recover':'自我再生',
+'Calm Mind':'冥想','Dragon Claw':'龍爪','Dragon Pulse':'龍之波動',
+'Bite':'咬住','Crunch':'咬碎','Swift':'高速星星',
+'Iron Tail':'鐵尾','Aerial Ace':'燕返','Earthquake':'地震',
+'Rock Slide':'岩崩','Surf':'衝浪','Fly':'飛翔',
+'Extreme Speed':'神速','Close Combat':'近身戰','Aura Sphere':'波導彈',
+'Poison Jab':'毒擊','Sludge Bomb':'污泥炸彈',
+'Double Team':'影子分身','Rest':'睡覺','Sleep Powder':'催眠粉',
+'Stun Spore':'麻痺粉','Leech Seed':'寄生種子'
+};
+for(const [en,zh] of Object.entries(officialMoves))map.set(en,zh);
+
+
+const extended={
+ 'What’s new':'更新公告',"What's new":'更新公告',
+ 'Fortune':'幸運','Repertoire':'招式欄位','Critical Hit':'會心一擊','Card reroll':'卡牌重抽',
+ 'Start with 2 moves':'開局擁有 2 個招式','+8% PokéDollars':'寶可夢幣 +8%',
+ '+3% critical chance':'會心一擊率 +3%','(x1.5 damage)':'（傷害 ×1.5）',
+ '+1 level-up card reroll per run':'每次冒險額外重抽 1 次升級卡牌',
+ 'Ban 1 move: it never shows up in your cards':'封鎖一個招式，使其不再出現在升級卡牌中',
+ 'move: it never shows up in your cards':'封鎖招式，使其不再出現在升級卡牌中',
+ 'Each Pokémon has its own upgrades: they only count when you play with it.':'每隻寶可夢都有自己的強化效果，只有使用該寶可夢時才會生效。',
+ 'Elige qué movimiento va siempre en cada hueco (teclas 1-4 o los iconos de abajo), para la memoria muscular. Si aún no tienes tantos movimientos, va al hueco más cercano.':'設定每個欄位固定的招式（按鍵 1～4 或下方圖示）。若招式不足，會自動安排到最接近的欄位。',
+ 'Choose which move always goes in each slot (keys 1-4 or the icons at the bottom), for muscle memory. If you do not have that many moves yet, it goes to the closest slot.':'設定每個欄位固定的招式（按鍵 1～4 或下方圖示）。若招式不足，會自動安排到最接近的欄位。',
+ 'Agility':'高速移動','Quick Attack':'電光一閃','Confusion':'念力','Harden':'變硬',
+ 'Body Slam':'泰山壓頂','Tackle':'撞擊','Psycho Cut':'精神利刃',
+ 'Bite':'咬住','Slash':'劈開','Double-Edge':'捨身衝撞',
+ 'Swift':'高速星星','Sing':'唱歌','Teleport':'瞬間移動',
+ 'Nasty Plot':'詭計','Ancient Power':'原始之力',
+ 'Power-Up Punch':'增強拳','Meteor Mash':'彗星拳',
+ 'Dragon Dance':'龍之舞','Roost':'羽棲','U-turn':'急速折返'
+};
+for(const [en,zh] of Object.entries(extended))map.set(en,zh);
 function tr(value){
  if(typeof value!=='string'||!value.trim())return value;
  const t=value.trim();if(map.has(t))return value.replace(t,map.get(t));
@@ -66,8 +109,99 @@ function tr(value){
  out=out.replace(/\b(\d+)\s+niveles\b/gi,'$1 級').replace(/\bpartner\b/gi,'夥伴');
  return out===t?value:value.replace(t,out);
 }
+
+function fixNativeMoveOptions(){
+ for(const select of document.querySelectorAll('select[data-slot]')){
+  for(const option of select.options){
+   const name=(option.textContent||'').trim();
+   let translated=officialMoves[name];
+   if(!translated && typeof G!=='undefined' && G.Moves && G.Moves.BY_ID && G.Moves.BY_ID[option.value]){
+    const original=G.Moves.BY_ID[option.value].name;
+    translated=officialMoves[original] || (window.PS_ZH_TW && window.PS_ZH_TW.translate(original));
+   }
+   if(translated && translated!==name)option.textContent=translated;
+  }
+ }
+}
+
+
+// Safari native picker: option nodes require explicit translation; IDs and values are never changed.
+function fixNativePokemonOptions(){
+ const api=window.PS_ZH_TW;
+ const dict=api&&api.pokemon||{};
+ const dex=(typeof G!=='undefined'&&G.DEX_BY)||{};
+ const select=document.getElementById('upg-mon');
+ if(!select)return;
+ for(const option of select.options){
+  const id=Number(option.value), p=dex[id];
+  if(!p)continue;
+  const old=option.textContent||'';
+  const localized=dict[id]||(api&&api.translate?api.translate(p.name):p.name);
+  const suffix=old.startsWith(p.name)?old.slice(p.name.length):old.replace(/^.*?(?=\s*\(|\s*[·・]|$)/,'');
+  const text=localized+suffix.replace(/\s*\((?:compañero|partner)\)/gi,'（夥伴）').replace(/(\d+)\s*(?:niveles|levels?)/gi,'$1 級');
+  if(old!==text)option.textContent=text;
+ }
+}
+// Keep localized labels stable after menus are rebuilt by the game.
+function fixAllNativeOptions(){fixNativePokemonOptions();fixNativeMoveOptions();}
+
+// Upgrade reward cards: translate full phrases and only the correct UI nodes.
+// No gameplay objects, item IDs, move IDs, account data or save state are changed.
+const rewardLabels=new Map(Object.entries({
+ 'Sitrus Berry':'文柚果','Sludge':'污泥攻擊','Learning':'學習力','Sprint':'衝刺',
+ 'Poison Sting':'毒針','毒 Sting':'毒針','Swords Dance':'劍舞',
+ 'Choose a reward:':'選擇一項獎勵：','Choose a reward.':'選擇一項獎勵。',
+ '選擇 a reward:':'選擇一項獎勵：','選擇 a reward.':'選擇一項獎勵。',
+ 'Restores 45% of your HP right now.':'立即回復最大生命值的 45%。',
+ '+1 projectile': '額外發射 1 枚投射物',
+ '+12% experience gained.':'獲得經驗值 +12%。',
+ '+7% movement speed.':'移動速度 +7%。',
+ '+45% damage':'傷害 +45%',
+ '+1 max stack':'最大疊加層數 +1',
+ '+1 Max stack':'最大疊加層數 +1',
+ '+1 已滿級 stack':'最大疊加層數 +1',
+ '+1 已滿級 stock':'最大儲存次數 +1',
+ '+1 max stock':'最大儲存次數 +1',
+ 'Max stack':'最大疊加層數','max stack':'最大疊加層數',
+ '已滿級 stack':'最大疊加層數',
+ 'Restores 45% of your HP right now':'立即回復最大生命值的 45%',
+ 'Choose a reward':'選擇一項獎勵',
+ 'a reward':'一項獎勵',
+ 'damage':'傷害','projectile':'投射物',
+ 'movement speed':'移動速度','experience gained':'獲得經驗值',
+ 'Lv.':'等級 ','Nv.':'等級 '
+}));
+for(const [k,v] of rewardLabels)map.set(k,v);
+function translateRewardText(raw){
+ if(!raw||!raw.trim())return raw;
+ const trim=raw.trim();
+ if(rewardLabels.has(trim))return raw.replace(trim,rewardLabels.get(trim));
+ let s=raw;
+ s=s.replace(/(?:Choose|選擇)\s+a\s+reward\s*[:.]?/gi,'選擇一項獎勵：');
+ s=s.replace(/\+1\s+(?:已滿級|max(?:imum)?)\s+stack\b/gi,'最大疊加層數 +1');
+ s=s.replace(/\+1\s+(?:已滿級|max(?:imum)?)\s+stock\b/gi,'最大儲存次數 +1');
+ s=s.replace(/\+1\s+projectiles?\b/gi,'額外發射 1 枚投射物');
+ s=s.replace(/\+45%\s+damage\b/gi,'傷害 +45%');
+ s=s.replace(/\+12%\s+experience\s+gained\.?/gi,'獲得經驗值 +12%。');
+ s=s.replace(/\+7%\s+movement\s+speed\.?/gi,'移動速度 +7%。');
+ s=s.replace(/Restores\s+45%\s+of\s+your\s+HP\s+right\s+now\.?/gi,'立即回復最大生命值的 45%。');
+ s=s.replace(/\b毒\s+Sting\b/g,'毒針');
+ // Level indicators should remain levels, not 'maxed out'.
+ s=s.replace(/\b(?:Nv\.|Lv\.)\s*(\d+)\s*>\s*(\d+)/gi,'等級 $1 → $2');
+ return s;
+}
+function repairRewardCards(){
+ // Handle existing text nodes, including mixed-language results of older overlays.
+ const root=document.querySelector('#scr-levelup')||document.body;
+ const walk=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);
+ let n;while((n=walk.nextNode())){
+  if(n.parentElement&&/^(SCRIPT|STYLE|TEXTAREA|PRE|CODE|OPTION)$/.test(n.parentElement.tagName))continue;
+  const fixed=translateRewardText(n.nodeValue);
+  if(fixed!==n.nodeValue)n.nodeValue=fixed;
+ }
+}
 let busy=false,queued=false;
-function run(){queued=false;if(busy||!document.body)return;busy=true;try{const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walk.nextNode()){if(n.parentElement&&/^(SCRIPT|STYLE|TEXTAREA|PRE|CODE)$/.test(n.parentElement.tagName))continue;const next=tr(n.nodeValue);if(next!==n.nodeValue)n.nodeValue=next;}for(const el of document.querySelectorAll('[placeholder],[title],[aria-label]'))for(const a of ['placeholder','title','aria-label']){const v=el.getAttribute(a);if(v!==null){const t=tr(v);if(t!==v)el.setAttribute(a,t);}}}finally{busy=false;}}
+function run(){queued=false;if(busy||!document.body)return;busy=true;try{const walk=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);let n;while(n=walk.nextNode()){if(n.parentElement&&/^(SCRIPT|STYLE|TEXTAREA|PRE|CODE)$/.test(n.parentElement.tagName))continue;const next=tr(n.nodeValue);if(next!==n.nodeValue)n.nodeValue=next;}for(const el of document.querySelectorAll('[placeholder],[title],[aria-label]'))for(const a of ['placeholder','title','aria-label']){const v=el.getAttribute(a);if(v!==null){const t=tr(v);if(t!==v)el.setAttribute(a,t);}}fixAllNativeOptions();repairRewardCards();}finally{busy=false;}}
 function schedule(){if(!queued){queued=true;requestAnimationFrame(run);}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule,{once:true});else schedule();
 new MutationObserver(()=>{if(!busy)schedule()}).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
