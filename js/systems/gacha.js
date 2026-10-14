@@ -18,8 +18,8 @@ G.Gacha = (() => {
   /** @param use  't1' (tickets normales) o 't10' (un ticket ×10, sólo para la ×10) */
   function costOf(save, n, use = 't1') {
     const t = save.tickets || { t1: 0, t10: 0 };
-    if (n === 10 && use === 't10') return t.t10 >= 1 ? { t1: 0, t10: 1 } : null;
-    return t.t1 >= n ? { t1: n, t10: 0 } : null;
+    if (n === 10 && use === 't10') return { t1: 0, t10: 0 }; // 無限十連抽
+    return { t1: 0, t10: 0 }; // 測試版：抽獎不消耗票券
   }
   const RATES = [[1, 45], [2, 30], [3, 17], [4, 6.5], [5, 1.5]];
   const PITY_5 = 70;
@@ -80,6 +80,10 @@ G.Gacha = (() => {
   function pull(save, n, gen = 1, use = 't1') {
     const cost = costOf(save, n, use);
     if (!cost) return null;
+    save.tickets = save.tickets || { t1: 0, t10: 0 };
+    save.owned = save.owned || {};
+    save.stats = save.stats || {};
+    save.coins = save.coins || 0;
     save.tickets.t1 -= cost.t1;
     save.tickets.t10 -= cost.t10;
     save.pity = save.pity || {};
@@ -89,38 +93,41 @@ G.Gacha = (() => {
     const out = [];
     for (let i = 0; i < n; i++) {
       save.pity[gen]++;
+      // 優先收集普通版，再收集色違；全部收集後恢復可重複抽取。
+      const bannerPool = G.DEX.filter(p => inBanner(p, gen));
+      if (!bannerPool.length) break;
+      const normalMissing = bannerPool.filter(p => !save.owned[p.dex]);
+      const shinyMissing = bannerPool.filter(p => G.Sprites.hasShiny(p.dex) && !save.shiny[p.dex]);
+      const shinyPhase = normalMissing.length === 0 && shinyMissing.length > 0;
+      const collectionComplete = normalMissing.length === 0 && shinyMissing.length === 0;
+      const candidates = normalMissing.length ? normalMissing : shinyPhase ? shinyMissing : bannerPool;
       let want;
       if (save.pity[gen] >= PITY_5) want = 5;
       else if (n === 10 && i === n - 1 && !out.some(r => r.rarity >= 4)) want = rollRarity(4);
       else want = rollRarity();
-
-      const { rarity, list } = poolNear(want, gen);
+      // 只在尚未收集的候選者中依原版稀有度權重抽選。
+      const availableRarities = [...new Set(candidates.map(p => p.rarity))];
+      const rarity = availableRarities.reduce((best, r) =>
+        Math.abs(r - want) < Math.abs(best - want) ? r : best, availableRarities[0]);
       if (rarity === 5) save.pity[gen] = 0;
-      let mon = G.U.pick(list);
-      let shiny = G.Sprites.hasShiny(mon.dex) && (forceShiny > 0 ? (forceShiny--, true) : Math.random() < SHINY_RATE);
-      // Los shiny no se repiten: si ya tienes ese, sale otro de la misma rareza
-      // cuyo shiny te falte; si los tienes todos, sale normal.
-      if (shiny && save.shiny[mon.dex]) {
-        const missing = list.filter(p => G.Sprites.hasShiny(p.dex) && !save.shiny[p.dex]);
-        if (missing.length) mon = G.U.pick(missing);
-        else shiny = false;
-      }
+      const mon = G.U.pick(candidates.filter(p => p.rarity === rarity));
+      const shiny = collectionComplete ? (G.Sprites.hasShiny(mon.dex) && Math.random() < SHINY_RATE) : shinyPhase;
 
       let isNew = false, refund = 0;
       if (shiny) {
         isNew = !save.shiny[mon.dex];
         if (isNew) save.shiny[mon.dex] = { at: Date.now(), from: 'gacha' };
-        else refund = REFUND[rarity] * 3;
+        else refund = REFUND[rarity] * 3 * 1000;
         if (!save.owned[mon.dex]) save.owned[mon.dex] = { at: Date.now(), from: 'gacha' };
       } else {
         isNew = !save.owned[mon.dex];
         if (isNew) save.owned[mon.dex] = { at: Date.now(), from: 'gacha' };
-        else refund = REFUND[rarity];
+        else refund = REFUND[rarity] * 1000;
       }
       save.coins += refund;
       out.push({ dex: mon.dex, rarity, shiny, isNew, refund });
     }
-    save.stats.pulls = (save.stats.pulls || 0) + n;
+    save.stats.pulls = (save.stats.pulls || 0) + out.length;
     return out;
   }
 
